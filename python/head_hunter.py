@@ -2,27 +2,54 @@ import asyncio
 import pandas as pd
 from excel import get_vacancy_list, save_excel
 from aiohttp import ClientSession
-from fake_useragent import UserAgent
-from utils import get_mediana
+from utils import get_mediana, get_headers
 
-URL = 'https://api.hh.ru/vacancies'
+URL = 'https://api.hh.ru'
 COUNT = 100
 DATA = {}
 
 
-async def get_vacancy(vacancy_name: str):
-    ua = UserAgent()
-    headers = {
-        "accept": "application/json",
-        "User-Agent": ua.random
-    }
-    async with ClientSession(headers=headers) as session:
-        response = await session.get(URL, data={
-            'text': vacancy_name,
-            'per_page': 100,
-            'area': 113,
+async def get_location_id(name):
+    """Get Location id"""
+
+    def _find(data):
+        """Recurent find id"""
+        for area in data:
+            if area['name'] == name:
+                return area['id']
+            else:
+                if len(area) > 0:
+                    _a = _find(area['areas'])
+                    if _a is None:
+                        continue
+                    else:
+                        return _a
+                else:
+                    continue
+
+    url = f'{URL}/areas'
+    async with ClientSession(headers=get_headers()) as session:
+        response = await session.get(url)
+        _json = await response.json()
+        return _find(_json)
+
+
+async def get_vacancy(vacancy):
+    """
+    Get vacancies
+    @param vacancy: Series
+    """
+    url = f'{URL}/vacancies'
+    area = await get_location_id(vacancy['Локоция'])
+    area = 113 if area is None else area
+    async with ClientSession(headers=get_headers()) as session:
+        response = await session.get(url, data={
+            'text': vacancy['Ключи'].strip('.'),
+            'per_page': vacancy['Количество вакансии'],
+            'area': area,
+            'date_from': vacancy['Дата от'].date(),
+            'date_to': vacancy['Дата до'].date(),
             'currency': 'RUR',
-            'no_magic': True
         })
 
         return_data = []
@@ -59,19 +86,17 @@ async def get_vacancy(vacancy_name: str):
         df['Медиана'] = get_mediana(mediana)
     else:
         df = pd.DataFrame(columns=list(DATA.values()))
-    vacancy_name = vacancy_name[:30] if len(vacancy_name) > 30 else vacancy_name
+    vacancy_name = vacancy['Ключи'][:30] if len(vacancy['Ключи']) > 30 else vacancy['Ключи']
     DATA[vacancy_name] = df
 
 
 async def _collect_task(keys_path):
     tasks = []
-    for vacancy_name in get_vacancy_list(keys_path):
-        tasks.append(asyncio.create_task(get_vacancy(vacancy_name)))
+    for vacancy in get_vacancy_list(keys_path).iloc:
+        tasks.append(asyncio.create_task(get_vacancy(vacancy)))
     await asyncio.gather(*tasks)
 
 
-async def async_collect_data(save_path: str, keys_path: str, count: int):
-    global COUNT
-    COUNT = count
+async def async_collect_data(save_path: str, keys_path: str):
     await _collect_task(keys_path)
     save_excel(DATA, save_path)

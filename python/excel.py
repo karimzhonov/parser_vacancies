@@ -3,8 +3,8 @@ import pandas as pd
 CONFIG_XLSX = '../search_keys.xlsx'
 
 def get_vacancy_list(path):
-    df = pd.DataFrame(pd.read_excel(path, 'Лист1', header=None)).reset_index(drop=True)
-    return [row.strip('.') for row in df[0].iloc]
+    data = pd.read_excel(path, 'Лист1')
+    return pd.DataFrame(data, columns=data.columns.values)
 
 
 def save_excel(data: dict, path: str):

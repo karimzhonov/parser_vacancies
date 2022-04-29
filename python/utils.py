@@ -1,4 +1,5 @@
 from datetime import datetime
+from fake_useragent import UserAgent
 
 
 def get_datetime():
@@ -14,3 +15,11 @@ def get_mediana(med):
     if n % 2:
         return sorted(med)[index]
     return sum(sorted(med)[index - 1:index + 1]) / 2
+
+
+def get_headers():
+    ua = UserAgent()
+    return {
+        "accept": "application/json",
+        "User-Agent": ua.random
+    }
