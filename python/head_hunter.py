@@ -5,6 +5,7 @@ from aiohttp import ClientSession
 from excel import get_vacancy_list, save_excel
 from utils import get_mediana, get_headers
 from schedule import find_schedule
+from bs4 import BeautifulSoup
 
 URL = 'https://api.hh.ru'
 COUNT = 100
@@ -13,6 +14,7 @@ DATA = {}
 
 async def get_location_id(name: str):
     """Get Location id"""
+
     def _find(data):
         """Recurent find id"""
         for area in data:
@@ -72,9 +74,12 @@ async def get_vacancy(vacancy):
                     return_card['Зарплата(До)'] = card['salary']['to']
                     return_card['Зарплата(Средняя)'] = (card['salary']['from'] + card['salary']['to']) / 2
                     mediana.append(return_card['Зарплата(Средняя)'])
+            # Scedule
             html_response = await session.get(card['alternate_url'], ssl=False)
             html = await html_response.text()
-            return_card['График'] = find_schedule(html)
+            soup = BeautifulSoup(html, features='lxml')
+            desc = soup.find(attrs={'data-qa': "vacancy-description"})
+            return_card['График'] = find_schedule(desc.text)
             return_card['Ссылка'] = card['alternate_url']
             return_data.append(return_card)
         df = pd.DataFrame(return_data, index=None)

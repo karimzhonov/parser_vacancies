@@ -1,6 +1,37 @@
+import logging
 from datetime import datetime
 from fake_useragent import UserAgent
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver import Chrome, DesiredCapabilities
+from webdriver_manager.chrome import ChromeDriverManager
 
+
+def get_driver():
+    """Return Chrome driver"""
+    options = Options()
+    options.add_argument("headless")
+    options.add_argument("log-level=3")
+    options.add_argument("start-maximized")
+    options.add_argument("disable-infobars")
+    options.add_argument("disable-extensions")
+    options.add_argument(f"user_agent={UserAgent().random}")
+    options.add_argument(f'disable-application-cache')
+    options.add_argument(f'disable-application-cache=zero')
+    options.add_argument('disable-blink-features=AutomationControlled')
+    options.add_experimental_option('excludeSwitches', ['enable-logging'])
+    options.add_experimental_option('prefs', {
+            'profile.managed_default_content_settings.images': 2,
+            'profile.managed_default_content_settings.mixed_script': 2,
+            'profile.managed_default_content_settings.media_stream': 2,
+            'profile.managed_default_content_settings.stylesheets': 2
+        }
+    )
+    caps = DesiredCapabilities().CHROME
+    caps["pageLoadStrategy"] = "normal"  # complete
+    driver = Chrome(service=Service(ChromeDriverManager(log_level=logging.CRITICAL).install()),
+                  options=options, service_log_path='NULL', desired_capabilities=caps)
+    return driver
 
 def get_datetime():
     now = str(datetime.now()).split('.')[0]
@@ -24,3 +55,9 @@ def get_headers():
         "accept-language": "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
         "User-Agent": ua.random
     }
+
+def cyrillic_to_latin(text: str):
+    symbols = (u"абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ ",
+               u"abvgdeejziyklmnoprstufhсcss_y_euaABVGDEEJZIJKLMNOPRSTUFHСCSS_Y_EUA-")
+    tr = {ord(a): ord(b) for a, b in zip(*symbols)}
+    return text.translate(tr)

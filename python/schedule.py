@@ -1,11 +1,9 @@
 import re
-from bs4 import BeautifulSoup
 
 
-def find_schedule(html):
+def find_schedule(text):
     result = []
-    html = BeautifulSoup(html, features='lxml')
-    html = html.text.lower()
+    html = text.lower()
     for i in range(0, 10):
         for j in range(0, 10):
             schedule = _find_schedule(f'{i}/{j}', html)
@@ -18,8 +16,7 @@ def find_schedule(html):
 def _find_schedule(schedule: str, text: str):
     try:
         _res = []
-        _iter = re.finditer(schedule, text)
-        for i in _iter:
+        for i in re.finditer(schedule, text):
             index = i.start()
             _schedule = str(schedule)
             _left_i = int(index)

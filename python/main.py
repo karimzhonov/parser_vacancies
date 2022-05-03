@@ -1,7 +1,8 @@
 import os
 import asyncio
 from typer import Typer, Argument, Option
-from head_hunter import async_collect_data
+from avito import collect_data as avito_collect_data
+from head_hunter import async_collect_data as hh_async_collect_data
 from utils import get_datetime
 
 app = Typer()
@@ -16,9 +17,9 @@ def main(mode: str = Argument(None, help='hh.ru, avito'),
 
     save_path = os.path.join(save_path, f'{mode}_{get_datetime()}.xlsx')
     if mode == 'hh.ru':
-        asyncio.run(async_collect_data(save_path, keys_path))
+        asyncio.run(hh_async_collect_data(save_path, keys_path))
     elif mode == 'avito':
-        pass
+        avito_collect_data(save_path, keys_path)
 
 
 if __name__ == '__main__':
