@@ -21,16 +21,16 @@ def get_driver():
     options.add_argument('disable-blink-features=AutomationControlled')
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_experimental_option('prefs', {
-            'profile.managed_default_content_settings.images': 2,
-            'profile.managed_default_content_settings.mixed_script': 2,
-            'profile.managed_default_content_settings.media_stream': 2,
-            'profile.managed_default_content_settings.stylesheets': 2
-        }
-    )
+        'profile.managed_default_content_settings.images': 2,
+        'profile.managed_default_content_settings.mixed_script': 2,
+        'profile.managed_default_content_settings.media_stream': 2,
+        'profile.managed_default_content_settings.stylesheets': 2
+    })
     caps = DesiredCapabilities().CHROME
     caps["pageLoadStrategy"] = "normal"  # complete
     driver = Chrome(service=Service(ChromeDriverManager(log_level=logging.CRITICAL).install()),
-                  options=options, service_log_path='NULL', desired_capabilities=caps)
+                    options=options, service_log_path='NULL', desired_capabilities=caps)
+    driver.delete_all_cookies()
     return driver
 
 def get_datetime():
