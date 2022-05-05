@@ -2,8 +2,9 @@ import pandas as pd
 
 CONFIG_XLSX = '../search_keys.xlsx'
 
+
 def get_vacancy_list(path):
-    data = pd.read_excel(path, 'Лист1')
+    data = pd.read_excel(path, '1.Main')
     return pd.DataFrame(data, columns=data.columns.values)
 
 

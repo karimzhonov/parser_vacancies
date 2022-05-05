@@ -5,43 +5,25 @@ from aiohttp import ClientSession
 from excel import get_vacancy_list, save_excel
 from utils import get_mediana, get_headers
 from schedule import find_schedule
+from location import get_hh_locations
 from bs4 import BeautifulSoup
 
 URL = 'https://api.hh.ru'
 COUNT = 100
 DATA = {}
-
-
-async def get_location_id(name: str):
-    """Get Location id"""
-
-    def _find(data):
-        """Recurent find id"""
-        for area in data:
-            if area['name'] == name:
-                return area['id']
-            else:
-                if len(area) > 0:
-                    _a = _find(area['areas'])
-                    if _a is None:
-                        continue
-                    else:
-                        return _a
-                else:
-                    continue
-
-    url = f'{URL}/areas'
-    async with ClientSession(headers=get_headers()) as session:
-        response = await session.get(url)
-        _json = await response.json()
-        return _find(_json)
+LOCATIONS: list[dict] = ...
 
 
 async def get_vacancy(vacancy):
     """Get vacancies"""
     url = f'{URL}/vacancies'
     async with ClientSession(headers=get_headers()) as session:
-        area = await get_location_id(vacancy['Локоция'])
+        # Set location
+        area = None
+        for loc in LOCATIONS:
+            if vacancy['Локоция'] == loc['location']:
+                area = loc['hh_code']
+                break
         area = 113 if area is None else area
         response = await session.get(url, data={
             'text': vacancy['Ключи'].strip('.'),
@@ -78,8 +60,7 @@ async def get_vacancy(vacancy):
             html_response = await session.get(card['alternate_url'], ssl=False)
             html = await html_response.text()
             soup = BeautifulSoup(html, features='lxml')
-            desc = soup.find(attrs={'data-qa': "vacancy-description"})
-            return_card['График'] = find_schedule(desc.text)
+            return_card['График'] = find_schedule(soup.text)
             return_card['Ссылка'] = card['alternate_url']
             return_data.append(return_card)
         df = pd.DataFrame(return_data, index=None)
@@ -94,6 +75,8 @@ async def get_vacancy(vacancy):
 
 
 async def async_collect_data(save_path: str, keys_path: str, async_tasks_count: int = 3):
+    global LOCATIONS
+    LOCATIONS = get_hh_locations()
     t0 = datetime.now()
     counter = 0
     tasks = []
