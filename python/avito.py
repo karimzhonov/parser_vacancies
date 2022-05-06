@@ -1,3 +1,4 @@
+import re
 import time
 import pandas as pd
 from tqdm import tqdm
@@ -76,16 +77,14 @@ def get_vacancy_data(driver, mediana):
 
 def collect_vacancy(driver, items, text, mediana):
     vac_data = []
-    for item in tqdm(items, desc=f'Collect vacancy: {text} - '):
+    for item in tqdm(items, desc=f'Parsing vacancy: {text} - '):
         item.click()
         time.sleep(1)
-        driver.switch_to.window(driver.window_handles[0])
-
-    for window in tqdm(driver.window_handles[1:], desc=f'Parsing vacancy: {text} - '):
-        driver.switch_to.window(window)
+        driver.switch_to.window(driver.window_handles[1])
         data = get_vacancy_data(driver, mediana)
         if data is not None: vac_data.append(data)
         driver.close()
+        driver.switch_to.window(driver.window_handles[0])
     return vac_data
 
 
@@ -93,8 +92,8 @@ def get_vacancy_page(driver, vacancy, data):
     try:
         mediana = []
         text = vacancy['Ключи'].strip('.')
-        count = vacancy['Количество вакансии']
-        location = vacancy['Локоция']
+        count = int(vacancy['Количество вакансии'])
+        location = re.sub(r'\([^()]*\)', '', vacancy['Локоция'])
         url = f'{URL}?q={text}'
         driver.delete_all_cookies()
         driver.get(url)

@@ -37,42 +37,43 @@ async def get_vacancy(vacancy):
         return_data = []
         mediana = []
         data: dict = await response.json()
-        for card in data['items']:
-            return_card = {
-                'Название': card['name'],
-                'Зарплата(От)': "Не указано",
-                'Зарплата(До)': "Не указано",
-                'Зарплата(Средняя)': "Не указано",
-            }
-            if card['salary'] is not None:
-                if card['salary']['from'] is not None:
-                    return_card['Зарплата(От)'] = card['salary']['from']
-                    mediana.append(card['salary']['from'])
-                elif card['salary']['to'] is not None:
-                    return_card['Зарплата(До)'] = card['salary']['to']
-                    mediana.append(card['salary']['to'])
-                else:
-                    return_card['Зарплата(От)'] = card['salary']['from']
-                    return_card['Зарплата(До)'] = card['salary']['to']
-                    return_card['Зарплата(Средняя)'] = (card['salary']['from'] + card['salary']['to']) / 2
-                    mediana.append(return_card['Зарплата(Средняя)'])
-            # Scedule
-            html_response = await session.get(card['alternate_url'], ssl=False)
-            html = await html_response.text()
-            soup = BeautifulSoup(html, features='lxml')
-            return_card['График'] = find_schedule(soup.text)
-            return_card['Ссылка'] = card['alternate_url']
-            return_data.append(return_card)
-        df = pd.DataFrame(return_data, index=None)
-        if len(df) > 0:
-            df['Медиана'] = get_mediana(mediana)
-        else:
-            df = pd.DataFrame(columns=list(DATA.values()))
-        vacancy_name = vacancy['Ключи'][:30] if len(vacancy['Ключи']) > 30 else vacancy['Ключи']
-        vacancy_name = vacancy_name.replace('.', '')
-        df = df.sort_values(['График'])
-        DATA[vacancy_name] = df
-        print(f'Parsed vacancy: {vacancy_name}')
+        if len(data['items']):
+            for card in data['items']:
+                return_card = {
+                    'Название': card['name'],
+                    'Зарплата(От)': "Не указано",
+                    'Зарплата(До)': "Не указано",
+                    'Зарплата(Средняя)': "Не указано",
+                }
+                if card['salary'] is not None:
+                    if card['salary']['from'] is not None:
+                        return_card['Зарплата(От)'] = card['salary']['from']
+                        mediana.append(card['salary']['from'])
+                    elif card['salary']['to'] is not None:
+                        return_card['Зарплата(До)'] = card['salary']['to']
+                        mediana.append(card['salary']['to'])
+                    else:
+                        return_card['Зарплата(От)'] = card['salary']['from']
+                        return_card['Зарплата(До)'] = card['salary']['to']
+                        return_card['Зарплата(Средняя)'] = (card['salary']['from'] + card['salary']['to']) / 2
+                        mediana.append(return_card['Зарплата(Средняя)'])
+                # Scedule
+                html_response = await session.get(card['alternate_url'], ssl=False)
+                html = await html_response.text()
+                soup = BeautifulSoup(html, features='lxml')
+                return_card['График'] = find_schedule(soup.text)
+                return_card['Ссылка'] = card['alternate_url']
+                return_data.append(return_card)
+            df = pd.DataFrame(return_data, index=None)
+            if len(df) > 0:
+                df['Медиана'] = get_mediana(mediana)
+            else:
+                df = pd.DataFrame(columns=list(DATA.values()))
+            vacancy_name = vacancy['Ключи'][:30] if len(vacancy['Ключи']) > 30 else vacancy['Ключи']
+            vacancy_name = vacancy_name.replace('.', '')
+            df = df.sort_values(['График'])
+            DATA[vacancy_name] = df
+            print(f'Parsed vacancy: {vacancy_name}')
 
 
 async def async_collect_data(save_path: str, async_tasks_count: int = 3):
