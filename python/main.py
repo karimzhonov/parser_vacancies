@@ -10,16 +10,17 @@ app = Typer()
 
 @app.command()
 def main(mode: str = Argument(None, help='hh.ru, avito'),
-         save_path: str = Option(None, help='Path to save'),
-         keys_path: str = Option(None, help='Path to search_keys')):
-    if mode is None or keys_path is None:
-        raise ValueError(f'Run script with arguments MODE --save-path --keys-path')
+         save_path: str = Option(None, help='Path to save')):
+    if mode is None:
+        raise ValueError(f'Run script with arguments MODE')
 
-    if save_path is None: save_path = os.path.join('../files', f'{mode}_{get_datetime()}.xlsx')
+    if save_path is None: save_path = os.path.join(os.path.dirname(__file__), '../files',
+                                                   f'{mode}_{get_datetime()}.xlsx')
     if mode == 'hh.ru':
-        asyncio.run(hh_async_collect_data(save_path, keys_path))
+        asyncio.run(hh_async_collect_data(save_path))
     elif mode == 'avito':
-        avito_collect_data(save_path, keys_path)
+        avito_collect_data(save_path)
+
 
 if __name__ == '__main__':
     app()

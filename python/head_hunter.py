@@ -2,7 +2,7 @@ import asyncio
 import pandas as pd
 from datetime import datetime
 from aiohttp import ClientSession
-from excel import get_vacancy_list, save_excel
+from excel import save_excel, get_sheet
 from utils import get_mediana, get_headers
 from schedule import find_schedule
 from location import get_hh_locations
@@ -29,8 +29,8 @@ async def get_vacancy(vacancy):
             'text': vacancy['Ключи'].strip('.'),
             'per_page': vacancy['Количество вакансии'],
             'area': area,
-            'date_from': vacancy['Дата от'].date(),
-            'date_to': vacancy['Дата до'].date(),
+            'date_from': vacancy['Дата от'],
+            'date_to': vacancy['Дата до'],
             'currency': 'RUR',
         })
 
@@ -69,18 +69,19 @@ async def get_vacancy(vacancy):
         else:
             df = pd.DataFrame(columns=list(DATA.values()))
         vacancy_name = vacancy['Ключи'][:30] if len(vacancy['Ключи']) > 30 else vacancy['Ключи']
+        vacancy_name = vacancy_name.replace('.', '')
         df = df.sort_values(['График'])
         DATA[vacancy_name] = df
         print(f'Parsed vacancy: {vacancy_name}')
 
 
-async def async_collect_data(save_path: str, keys_path: str, async_tasks_count: int = 3):
+async def async_collect_data(save_path: str, async_tasks_count: int = 3):
     global LOCATIONS
     LOCATIONS = get_hh_locations()
     t0 = datetime.now()
     counter = 0
     tasks = []
-    for vacancy in get_vacancy_list(keys_path).iloc:
+    for vacancy in get_sheet():
         counter += 1
         tasks.append(asyncio.create_task(get_vacancy(vacancy)))
         if counter >= async_tasks_count:

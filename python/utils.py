@@ -10,14 +10,12 @@ from webdriver_manager.chrome import ChromeDriverManager
 def get_driver():
     """Return Chrome driver"""
     options = Options()
-    options.add_argument("headless")
+    # options.add_argument("headless")
     options.add_argument("log-level=3")
-    options.add_argument("start-maximized")
+    options.add_argument("disable-gpu")
     options.add_argument("disable-infobars")
     options.add_argument("disable-extensions")
     options.add_argument(f"user_agent={UserAgent().random}")
-    options.add_argument(f'disable-application-cache')
-    options.add_argument(f'disable-application-cache=zero')
     options.add_argument('disable-blink-features=AutomationControlled')
     options.add_experimental_option('excludeSwitches', ['enable-logging'])
     options.add_experimental_option('prefs', {
@@ -56,8 +54,3 @@ def get_headers():
         "User-Agent": ua.random
     }
 
-def cyrillic_to_latin(text: str):
-    symbols = (u"абвгдеёжзийклмнопрстуфхцчшщъыьэюяАБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ ",
-               u"abvgdeejziyklmnoprstufhсcss_y_euaABVGDEEJZIJKLMNOPRSTUFHСCSS_Y_EUA-")
-    tr = {ord(a): ord(b) for a, b in zip(*symbols)}
-    return text.translate(tr)

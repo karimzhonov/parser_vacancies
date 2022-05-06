@@ -3,13 +3,8 @@ Sub macros()
     Set xlApp = CreateObject("Excel.Application")
     Set Book = xlApp.Workbooks.Open(WScript.Arguments(0))
     For Each Sheet In Book.Worksheets
-        Sheet.Columns("A:G").Select
-        xlApp.Selection.Style = "Вывод"
-        xlApp.Selection.Style = "20% — акцент5"
         Sheet.Columns("A:G").EntireColumn.AutoFit
-        Sheet.Range("A1:G1").Select
-	  xlApp.Selection.Style = "Акцент5"
-    Next Sheet
+    Next
     Book.Save
     Book.Close True
     xlApp.Quit

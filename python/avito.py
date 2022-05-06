@@ -11,7 +11,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import TimeoutException, WebDriverException
 
 from schedule import find_schedule
-from excel import get_vacancy_list, save_excel
+from excel import save_excel, get_sheet
 from utils import get_driver, get_mediana
 
 DATA = {}
@@ -69,16 +69,16 @@ def get_vacancy_data(driver, mediana):
             return_card['Зарплата(До)'] = float(to_p)
             return_card['Зарплата(Средняя)'] = (return_card['Зарплата(От)'] + return_card['Зарплата(До)']) / 2
             mediana.append(return_card['Зарплата(Средняя)'])
-    except AttributeError:
-        pass
-    return return_card
+            return return_card
+    except Exception as _exp:
+        print(_exp)
 
 
 def collect_vacancy(driver, items, text, mediana):
     vac_data = []
     for item in tqdm(items, desc=f'Collect vacancy: {text} - '):
         item.click()
-        time.sleep(0.5)
+        time.sleep(1)
         driver.switch_to.window(driver.window_handles[0])
 
     for window in tqdm(driver.window_handles[1:], desc=f'Parsing vacancy: {text} - '):
@@ -96,6 +96,7 @@ def get_vacancy_page(driver, vacancy, data):
         count = vacancy['Количество вакансии']
         location = vacancy['Локоция']
         url = f'{URL}?q={text}'
+        driver.delete_all_cookies()
         driver.get(url)
         find_element(driver, By.XPATH, '//div[@data-marker="search-form/region"]').click()
         location_window = find_element(driver, By.XPATH, '//div[@data-marker="popup-location/overlay"]')
@@ -124,17 +125,18 @@ def get_vacancy_page(driver, vacancy, data):
         else:
             df = pd.DataFrame(columns=list(DATA.values()))
         vacancy_name = vacancy['Ключи'][:30] if len(vacancy['Ключи']) > 30 else vacancy['Ключи']
+        vacancy_name = vacancy_name.replace('.', '')
         df = df.sort_values(['График'])
         print(f'Parsed vacancy: {vacancy_name}')
         data[vacancy_name] = df
-    except WebDriverException:
-        pass
+    except Exception as _exp:
+        print(_exp)
 
 
-def collect_data(save_path: str, keys_path: str):
+def collect_data(save_path: str):
     t0 = datetime.now()
     driver = get_driver()
-    for vacancy in get_vacancy_list(keys_path).iloc:
+    for vacancy in get_sheet():
         driver.switch_to.window(driver.window_handles[0])
         task = Thread(target=get_vacancy_page, args=(driver, vacancy, DATA))
         task.start()
