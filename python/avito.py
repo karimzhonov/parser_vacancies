@@ -54,23 +54,26 @@ def get_vacancy_data(driver, mediana):
         return_card['График'] = find_schedule(desc)
         return_card['Ссылка'] = driver.current_url
         return_card['Название'] = soup.find(class_='title-info-main').text
-        price = soup.find('span', attrs={'itemprop': 'price'}).text.lower()
-        price = str(price).replace(' ', '').replace(u'\xa0', '')
-        if 'от' in price:
-            price = price.replace('от', '')
-            return_card['Зарплата(От)'] = float(price)
-            mediana.append(float(price))
-        elif 'до' in price:
-            price = price.replace('до', '')
-            return_card['Зарплата(До)'] = float(price)
-            mediana.append(float(price))
-        elif '—' in price:
-            from_p, to_p = price.split('—')
-            return_card['Зарплата(От)'] = float(from_p)
-            return_card['Зарплата(До)'] = float(to_p)
-            return_card['Зарплата(Средняя)'] = (return_card['Зарплата(От)'] + return_card['Зарплата(До)']) / 2
-            mediana.append(return_card['Зарплата(Средняя)'])
-            return return_card
+        try:
+            price = soup.find('span', attrs={'itemprop': 'price'}).text.lower()
+            price = str(price).replace(' ', '').replace(u'\xa0', '')
+            if 'от' in price:
+                price = price.replace('от', '')
+                return_card['Зарплата(От)'] = float(price)
+                mediana.append(float(price))
+            elif 'до' in price:
+                price = price.replace('до', '')
+                return_card['Зарплата(До)'] = float(price)
+                mediana.append(float(price))
+            elif '—' in price:
+                from_p, to_p = price.split('—')
+                return_card['Зарплата(От)'] = float(from_p)
+                return_card['Зарплата(До)'] = float(to_p)
+                return_card['Зарплата(Средняя)'] = (return_card['Зарплата(От)'] + return_card['Зарплата(До)']) / 2
+                mediana.append(return_card['Зарплата(Средняя)'])
+        except Exception as _exp:
+            print(_exp)
+        return return_card
     except Exception as _exp:
         print(_exp)
 
