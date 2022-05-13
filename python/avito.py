@@ -60,10 +60,12 @@ def get_vacancy_data(driver, mediana):
             if 'от' in price:
                 price = price.replace('от', '')
                 return_card['Зарплата(От)'] = float(price)
+                return_card['Зарплата(Средняя)'] = float(price)
                 mediana.append(float(price))
             elif 'до' in price:
                 price = price.replace('до', '')
                 return_card['Зарплата(До)'] = float(price)
+                return_card['Зарплата(Средняя)'] = float(price)
                 mediana.append(float(price))
             elif '—' in price:
                 from_p, to_p = price.split('—')
