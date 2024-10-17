@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet"
+        href="https://cdn.jsdelivr.net/npm/bootstrap-select@1.13.18/dist/css/bootstrap-select.min.css">
+    <title>Parser</title>
+
+</head>
+
+<body style="height: 100vh;">
+    <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
+        <form style="width: 400px; border: 1px solid #ccc; border-radius: 5px; padding: 20px;">
+            <div class="mb-3">
+                <label for="text" class="form-label" style="width: 100%;">Вакансия</label>
+                <select required id="text" class="selectpicker" multiple data-actions-box="true"
+                    data-live-search="true">
+                    <!-- <option selected>Open this select menu</option> -->
+                    {% for text in texts %}
+                    <option value="{{text}}">{{text}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="location" class="form-label" style="width: 100%;">Локация</label>
+                <select required id="location" class="selectpicker" multiple data-actions-box="true"
+                    data-live-search="true">
+                    <!-- <option selected>Open this select menu</option> -->
+                    {% for location in locations %}
+                    <option value="{{location.hh_code}}">{{location.location}}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Дата</label>
+                <div class="input-group align-items-center" id="date">
+                    <input required id="date_start" type="date" class="input-sm form-control" />
+                    <span class="input-group-addon" style="padding: 0 10px;">до</span>
+                    <input required id="date_end" type="date" class="input-sm form-control" />
+                </div>
+            </div>
+            <div class="mb-3">
+                <label for="count" class="form-label">Количество вакансии</label>
+                <input required type="number" class="form-control" id="count">
+            </div>
+            <button onclick="download()" style="width: 100%;" type="button" class="btn btn-primary">Скачать
+                Excel</button>
+        </form>
+    </div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-gtEjrD/SeCtmISkJkNUaaKMoLD0//ElJ19smozuHV6z3Iehds+3Ulb9Bn9Plx0x4"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.14.0-beta2/js/bootstrap-select.min.js"
+        integrity="sha512-FHZVRMUW9FsXobt+ONiix6Z0tIkxvQfxtCSirkKc5Sb4TKHmqq1dZa8DphF0XqKb3ldLu/wgMa8mT6uXiLlRlw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        function toDateInputValue(dateObject) {
+            const local = new Date(dateObject);
+            local.setMinutes(dateObject.getMinutes() - dateObject.getTimezoneOffset());
+            return local.toJSON().slice(0, 10);
+        };
+        $('#country').selectpicker();
+        $("#country option").attr("selected", "selected");
+        $('#date_start').val(toDateInputValue(new Date("2024-01-01")))
+        $('#date_end').val(toDateInputValue(new Date()))
+        $('#count').val(50)
+        function download() {
+            const data = {
+                text: $("#text").val().join(","),
+                area: $("#location").val().join(","),
+                per_page: $("#count").val(),
+                date_from: $("#date_start").val(),
+                date_to: $("#date_end").val(),
+                currency: 'RUR',
+            }
+            console.log(data);
+            fetch("/download", {
+                method: "POST",
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(data)
+            }).then(response => response.blob())
+                .then(blob => URL.createObjectURL(blob))
+                .then(url => {
+                    window.open(url, '_blank');
+                    URL.revokeObjectURL(url);
+                });
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,12 @@
+version: '3.3'
+
+services:
+
+  parser_web:
+    container_name: parser_web
+    build: .
+    ports:
+      - 7000:7000
+    restart: always
+    volumes:
+      - ./:/code/
