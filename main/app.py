@@ -1,5 +1,6 @@
 import datetime
 import io
+import uvicorn
 from pydantic import BaseModel
 from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, StreamingResponse
@@ -42,4 +43,14 @@ async def download(data: PostData):
     return StreamingResponse(io.BytesIO(file),
         headers=headers,
         media_type=media_type
+    )
+
+
+if __name__ == "__main__":
+    
+    uvicorn.run(
+        "app:app",
+        host    = "0.0.0.0",
+        port    = 7000, 
+        reload  = True
     )
