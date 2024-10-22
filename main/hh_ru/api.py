@@ -71,6 +71,7 @@ def collect_file(data):
         })
         if df is None:
             continue
+        print(df)
         df["Вакансия"] = text
         dfs.append(df)
     if not dfs:
