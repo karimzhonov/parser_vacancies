@@ -8,7 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="/static/bootstrap.css" rel="stylesheet">
     <link href="/static/bootstrap-select.css" rel="stylesheet">
-    <title>Parser</title>
+    <title>Аналитика вакансий</title>
 </head>
 
 <body style="height: 100vh;">
@@ -16,7 +16,7 @@
         <form style="width: 400px; border: 1px solid #ccc; border-radius: 5px; padding: 20px;">
             <div class="mb-3">
                 <label for="text" class="form-label" style="width: 100%;">Вакансия</label>
-                <select required id="text" class="selectpicker" multiple data-actions-box="true"
+                <select required id="text" class="selectpicker" multiple data-actions-box="true" data-deselect-all-text="Очистить" data-select-all-text="Выбрать все" data-none-selected-text="Выберете вакансию"
                     data-live-search="true">
                     <!-- <option selected>Open this select menu</option> -->
                     {% for text in texts %}
@@ -26,7 +26,7 @@
             </div>
             <div class="mb-3">
                 <label for="location" class="form-label" style="width: 100%;">Локация</label>
-                <select required id="location" class="selectpicker" multiple data-actions-box="true"
+                <select required id="location" class="selectpicker" multiple data-actions-box="true" data-deselect-all-text="Очистить" data-select-all-text="Выбрать все" data-none-selected-text="Выберете регион"
                     data-live-search="true">
                     <!-- <option selected>Open this select menu</option> -->
                     {% for location in locations %}
@@ -35,7 +35,7 @@
                 </select>
             </div>
             <div class="mb-3">
-                <label class="form-label">Дата</label>
+                <label class="form-label">Период для поиска</label>
                 <div class="input-group align-items-center" id="date">
                     <input required id="date_start" type="date" class="input-sm form-control" />
                     <span class="input-group-addon" style="padding: 0 10px;">до</span>
