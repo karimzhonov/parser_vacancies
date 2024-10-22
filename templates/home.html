@@ -17,7 +17,7 @@
             <div class="mb-3">
                 <label for="text" class="form-label" style="width: 100%;">Вакансия</label>
                 <select required id="text" class="selectpicker" multiple data-actions-box="true" data-deselect-all-text="Очистить" data-select-all-text="Выбрать все" data-none-selected-text="Выберете вакансию"
-                    data-live-search="true">
+                    data-live-search="true" data-width="100%">
                     <!-- <option selected>Open this select menu</option> -->
                     {% for text in texts %}
                     <option value="{{text}}">{{text}}</option>
@@ -27,7 +27,7 @@
             <div class="mb-3">
                 <label for="location" class="form-label" style="width: 100%;">Локация</label>
                 <select required id="location" class="selectpicker" multiple data-actions-box="true" data-deselect-all-text="Очистить" data-select-all-text="Выбрать все" data-none-selected-text="Выберете регион"
-                    data-live-search="true">
+                    data-live-search="true" data-width="100%">
                     <!-- <option selected>Open this select menu</option> -->
                     {% for location in locations %}
                     <option value="{{location.hh_code}}">{{location.location}}</option>
