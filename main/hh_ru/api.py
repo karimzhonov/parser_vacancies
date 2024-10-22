@@ -9,7 +9,7 @@ url = f'https://api.hh.ru/vacancies'
 
 def get_vacancy(text, data):
     try:
-        response = requests.get(url, params={'search_field': f"!{text}", **data})
+        response = requests.get(url, params={'text': f"!{text}", "search_field": "name", **data})
     except Exception as _exp:
         print(_exp)
         return None
