@@ -76,7 +76,9 @@ def collect_file(data):
         dfs.append(df)
     if not dfs:
         raise HTTPException(status_code=403, detail="Ваканции не найденo")
-    df = df_style(pd.concat(dfs).reset_index(inplace=True))
+    df = pd.concat(dfs)
+    df.reset_index(inplace=True)
+    df = df_style(df)
     output = io.BytesIO()
     writer = pd.ExcelWriter(output)
     df.to_excel(writer, index=False)
