@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import io
-from bs4 import BeautifulSoup
+from fastapi import HTTPException
 from .utils import get_mediana, df_style
 
 url = f'https://api.hh.ru/vacancies'
@@ -9,13 +9,15 @@ url = f'https://api.hh.ru/vacancies'
 
 def get_vacancy(text, data):
     try:
-        response = requests.get(url, params={'text': text, **data})
+        response = requests.get(url, params={'text': f"!{text}", **data})
     except Exception as _exp:
         print(_exp)
         return None
     data: dict = response.json()
     return_data = []
     mediana = []
+    if not data.get("items"):
+        raise HTTPException(status_code=403, detail="Ваканции не найденр")
     if len(data['items']):
         for card in data['items']:
             return_card = {
