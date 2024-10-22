@@ -9,7 +9,7 @@ url = f'https://api.hh.ru/vacancies'
 
 def get_vacancy(text, data):
     try:
-        response = requests.get(url, params={'text': f"!{text}", **data})
+        response = requests.get(url, params={'search_field': f"!{text}", **data})
     except Exception as _exp:
         print(_exp)
         return None
@@ -17,7 +17,7 @@ def get_vacancy(text, data):
     return_data = []
     mediana = []
     if not data.get("items"):
-        raise HTTPException(status_code=403, detail="Ваканции не найденр")
+        raise HTTPException(status_code=403, detail="Ваканции не найденo")
     if len(data['items']):
         for card in data['items']:
             return_card = {
@@ -60,7 +60,7 @@ def get_vacancy(text, data):
 def collect_file(data):
     counter = 0
     dfs = []
-    for text in data.text.split("."):
+    for text in data.text.split(","):
         counter += 1
         df = get_vacancy(text, {
             "area": data.area,
