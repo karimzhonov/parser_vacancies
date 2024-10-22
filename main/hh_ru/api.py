@@ -17,7 +17,7 @@ def get_vacancy(text, data):
     return_data = []
     mediana = []
     if not data.get("items"):
-        raise HTTPException(status_code=403, detail="Ваканции не найденo")
+        return None
     if len(data['items']):
         for card in data['items']:
             return_card = {
@@ -73,6 +73,8 @@ def collect_file(data):
             continue
         df["Вакансия"] = text
         dfs.append(df)
+    if not dfs:
+        raise HTTPException(status_code=403, detail="Ваканции не найденo")
     df = df_style(pd.concat(dfs))
     output = io.BytesIO()
     writer = pd.ExcelWriter(output)
