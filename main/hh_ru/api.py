@@ -13,6 +13,9 @@ def get_vacancy(text, data):
     except Exception as _exp:
         print(_exp)
         return None
+    if response.status_code != 200:
+        print(response.json())
+        return None
     data: dict = response.json()
     return_data = []
     mediana = []
@@ -75,7 +78,7 @@ def collect_file(data):
         df["Вакансия"] = text
         dfs.append(df)
     if not dfs:
-        raise HTTPException(status_code=403, detail="Ваканции не найденo")
+        raise HTTPException(status_code=404, detail="Ваканции не найденo")
     df = pd.concat(dfs)
     df.reset_index(inplace=True)
     df = df_style(df)
