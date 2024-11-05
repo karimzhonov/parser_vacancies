@@ -67,7 +67,7 @@ def collect_file(data):
         counter += 1
         df = get_vacancy(text, {
             "area": data.area,
-            "per_page": int(data.per_page),
+            "per_page": int(data.per_page) if int(data.per_page) <= 100 else 100,
             "date_from": data.date_from,
             "date_to": data.date_to,
             "currency": data.currency,
