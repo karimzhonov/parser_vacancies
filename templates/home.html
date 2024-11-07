@@ -43,10 +43,10 @@
                 </div>
             </div>
             <div class="mb-3">
-                <label for="count" class="form-label">Количество вакансии</label>
+                <label for="count" class="form-label">Количество по одной вакансии</label>
                 <input required type="number" class="form-control" id="count" max="100">
             </div>
-            <button onclick="download()" style="width: 100%;" type="button" class="btn btn-primary">Скачать
+            <button id="btn_download" onclick="download()" style="width: 100%;" type="button" class="btn btn-primary">Скачать
                 Excel</button>
         </form>
     </div>
@@ -65,6 +65,9 @@
         $('#date_end').val(toDateInputValue(new Date()))
         $('#count').val(50)
         function download() {
+            const btn = document.getElementById("btn_download")
+            btn.disabled = true
+            btn.innerText = "Идет скачивание"
             const data = {
                 text: $("#text").val().join(","),
                 area: $("#location").val().join(","),
@@ -86,6 +89,8 @@
                 .then(url => {
                     window.open(url, '_blank');
                     URL.revokeObjectURL(url);
+                    btn.disabled = false
+                    btn.innerText = "Скачать Excel"
                 });
         }
     </script>

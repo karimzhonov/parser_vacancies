@@ -78,10 +78,18 @@ def get_hh_locations():
     response = requests.get(url)
     _json = response.json()
     _find(_json)
-    return locations
+    bind_location_ids = [1, 2, 113]
+    bind_locations = []
+    other_locations = []
+    for location in locations:
+        if int(location["hh_code"]) in bind_location_ids:
+            bind_locations.append(location)
+        else:
+            other_locations.append(location)
+    return [*bind_locations, *sorted(other_locations, key=lambda l: l["location"])]
 
 def get_text():
-    return ["Повар холодного цеха",
+    return sorted(["Повар холодного цеха",
     "Повар горячего цеха",
     "Повар универсал",
     "Подсобный рабочий",
@@ -136,7 +144,7 @@ def get_text():
     "Деревообработчики",
     "Раскройщики",
     "Мебельщики",
-    "Обивщики мягкой мебели"]
+    "Обивщики мягкой мебели"], key=lambda v: v)
 
 
 def df_style(df: pd.DataFrame, condition=None):

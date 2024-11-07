@@ -20,6 +20,7 @@ def get_vacancy(text, data):
     return_data = []
     mediana = []
     if not data.get("items"):
+        print(data)
         return None
     if len(data['items']):
         for card in data['items']:
@@ -32,17 +33,14 @@ def get_vacancy(text, data):
             if card['salary'] is not None:
                 if card['salary']['from'] is not None and card['salary']['to'] is None:
                     return_card['Зарплата(От)'] = card['salary']['from']
-                    return_card['Зарплата(Средняя)'] = card['salary']['from']
                     mediana.append(card['salary']['from'])
                 elif card['salary']['to'] is not None and card['salary']['from'] is None:
                     return_card['Зарплата(До)'] = card['salary']['to']
-                    return_card['Зарплата(Средняя)'] = card['salary']['to']
                     mediana.append(card['salary']['to'])
                 elif card['salary']['to'] is not None and card['salary']['from'] is not None:
                     return_card['Зарплата(От)'] = card['salary']['from']
                     return_card['Зарплата(До)'] = card['salary']['to']
-                    return_card['Зарплата(Средняя)'] = (card['salary']['from'] + card['salary']['to']) / 2
-                    mediana.append(return_card['Зарплата(Средняя)'])
+                    mediana.append((card['salary']['from'] + card['salary']['to']) / 2)
             # Scedule
             return_card['Ссылка'] = card['alternate_url']
             # try:
@@ -55,7 +53,10 @@ def get_vacancy(text, data):
             return_data.append(return_card)
         df = pd.DataFrame(return_data, index=None)
         if len(df) > 0:
+            df['Зарплата(Средняя)'] = round(sum(mediana) / len(mediana), 0)
             df['Медиана'] = get_mediana(mediana)
+        df["Вакансия"] = text
+        df["Ссылка"] = df.pop('Ссылка')
         # df = df.sort_values(['График'])
         return df
     return None
@@ -74,8 +75,6 @@ def collect_file(data):
         })
         if df is None:
             continue
-        print(df)
-        df["Вакансия"] = text
         dfs.append(df)
     if not dfs:
         raise HTTPException(status_code=404, detail="Ваканции не найденo")
