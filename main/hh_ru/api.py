@@ -4,10 +4,8 @@ import io
 from fastapi import HTTPException
 from .utils import get_mediana, df_style
 
-url = f'https://api.hh.ru/vacancies'
 
-
-def get_vacancy(text, data):
+def get_vacancy(text, data, url=f'https://api.hh.ru/vacancies'):
     try:
         response = requests.get(url, params={'text': f"!{text}", "search_field": "name", **data})
     except Exception as _exp:
@@ -52,7 +50,7 @@ def get_vacancy(text, data):
             #     print(_exp)
             return_data.append(return_card)
         df = pd.DataFrame(return_data, index=None)
-        if len(df) > 0:
+        if len(df) > 0 and len(mediana) > 0:
             df['Зарплата(Средняя)'] = round(sum(mediana) / len(mediana), 0)
             df['Медиана'] = get_mediana(mediana)
         df["Вакансия"] = text

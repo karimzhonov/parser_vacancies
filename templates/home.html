@@ -23,6 +23,7 @@
                     <option value="{{text}}">{{text}}</option>
                     {% endfor %}
                 </select>
+                <input required id="text_text" type="text" class="input-sm form-control mt-3" placeholder="Пишите название вакансии" />
             </div>
             <div class="mb-3">
                 <label for="location" class="form-label" style="width: 100%;">Локация</label>
@@ -68,8 +69,13 @@
             const btn = document.getElementById("btn_download")
             btn.disabled = true
             btn.innerText = "Идет скачивание"
+            const text = $("#text").val()
+            const text_text = $("#text_text").val()
+            if (text_text) {
+                text.push(text_text)
+            }
             const data = {
-                text: $("#text").val().join(","),
+                text: text.join(","),
                 area: $("#location").val().join(","),
                 per_page: $("#count").val(),
                 date_from: $("#date_start").val(),
